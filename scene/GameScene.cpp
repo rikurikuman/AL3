@@ -1,6 +1,7 @@
 ﻿#include "GameScene.h"
 #include "TextureManager.h"
 #include <cassert>
+#include <random>
 
 using namespace DirectX;
 using namespace std;
@@ -15,11 +16,16 @@ void GameScene::Initialize() {
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
 	debugText_ = DebugText::GetInstance();
-	worldTransform_.Initialize();
-	worldTransform_.translation_ = { 10, 10, 10 };
-	worldTransform_.rotation_ = { 0.785898, 0.785898, 0 };
-	worldTransform_.scale_ = { 5, 5, 5 };
-	worldTransform_.UpdateMatrix();
+
+	random_device device;
+	uniform_real_distribution<float> rotDist(0.0f, XM_2PI);
+	uniform_real_distribution<float> posDist(-20, 20);
+
+	for (int i = 0; i < 100; i++) {
+		transforms[i].translation_ = { posDist(device), posDist(device), posDist(device) };
+		transforms[i].rotation_ = { rotDist(device), rotDist(device), rotDist(device) };
+		transforms[i].Initialize();
+	}
 	viewProjection_.Initialize();
 	textureHandle_ = TextureManager::Load("mario.jpg");
 	sprite_ = Sprite::Create(textureHandle_, {100, 50});
@@ -27,12 +33,55 @@ void GameScene::Initialize() {
 }
 
 void GameScene::Update() {
-	string st = "translation:(" + to_string(worldTransform_.translation_.x) + ", " + to_string(worldTransform_.translation_.y) + ", " + to_string(worldTransform_.translation_.z) + ")";
-	string st2 = "rotation:(" + to_string(worldTransform_.rotation_.x) + ", " + to_string(worldTransform_.rotation_.y) + ", " + to_string(worldTransform_.rotation_.z) + ")";
-	string st3 = "scale:(" + to_string(worldTransform_.scale_.x) + ", " + to_string(worldTransform_.scale_.y) + ", " + to_string(worldTransform_.scale_.z) + ")";
-	debugText_->Print(st, 50, 70, 1.0f);
-	debugText_->Print(st2, 50, 90, 1.0f);
-	debugText_->Print(st3, 50, 110, 1.0f);
+	random_device device;
+	uniform_real_distribution<float> rotDist(0.0f, XMConvertToRadians(5));
+
+	for (int i = 0; i < 100; i++) {
+		transforms[i].rotation_.x += rotDist(device);
+		transforms[i].rotation_.y += rotDist(device);
+		transforms[i].rotation_.z += rotDist(device);
+		transforms[i].UpdateMatrix();
+	}
+
+	XMFLOAT3 moveVecA = {0, 0, 0};
+	XMFLOAT3 moveVecB = { 0, 0, 0 };
+	const float moveSpeed = 0.2f;
+	const float viewRotSpeed = 0.05f;
+
+	if (input_->PushKey(DIK_W)) {
+		moveVecA = { 0, 0, moveSpeed };
+	}
+	else if (input_->PushKey(DIK_S)) {
+		moveVecA = { 0, 0, -moveSpeed };
+	}
+
+	if (input_->PushKey(DIK_LEFTARROW)) {
+		moveVecB = { -moveSpeed, 0, 0 };
+	}
+	else if (input_->PushKey(DIK_RIGHTARROW)) {
+		moveVecB = { moveSpeed, 0, 0 };
+	}
+
+	if (input_->PushKey(DIK_SPACE)) {
+		viewAngle += viewRotSpeed;
+	}
+
+	viewProjection_.eye.x += moveVecA.x;
+	viewProjection_.eye.y += moveVecA.y;
+	viewProjection_.eye.z += moveVecA.z;
+
+	viewProjection_.target.x += moveVecB.x;
+	viewProjection_.target.y += moveVecB.y;
+	viewProjection_.target.z += moveVecB.z;
+
+	viewProjection_.up = { cosf(viewAngle), sinf(viewAngle), 0 };
+
+	viewProjection_.UpdateMatrix();
+
+	debugText_->Print("eye:(" + to_string(viewProjection_.eye.x) + ", " + to_string(viewProjection_.eye.y) + ", " + to_string(viewProjection_.eye.z) + ")", 50, 70, 1.0);
+	debugText_->Print("target:(" + to_string(viewProjection_.target.x) + ", " + to_string(viewProjection_.target.y) + ", " + to_string(viewProjection_.target.z) + ")", 50, 90, 1.0);
+	debugText_->Print("eye:(" + to_string(viewProjection_.up.x) + ", " + to_string(viewProjection_.up.y) + ", " + to_string(viewProjection_.up.z) + ")", 50, 110, 1.0);
+
 }
 
 void GameScene::Draw() {
@@ -61,7 +110,9 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
-	model_->Draw(worldTransform_, viewProjection_, textureHandle_);
+	for (int i = 0; i < 100; i++) {
+		model_->Draw(transforms[i], viewProjection_, textureHandle_);
+	}
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();

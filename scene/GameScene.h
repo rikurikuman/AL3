@@ -51,9 +51,10 @@ class GameScene {
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>
-	WorldTransform worldTransform_;
+	WorldTransform transforms[100];
 	ViewProjection viewProjection_;
 	uint32_t textureHandle_ = 0;
 	Sprite* sprite_ = nullptr;
 	Model* model_ = nullptr;
+	float viewAngle = 0;
 };
