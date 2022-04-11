@@ -11,6 +11,8 @@
 #include "WorldTransform.h"
 #include <DirectXMath.h>
 
+using namespace DirectX;
+
 /// <summary>
 /// ゲームシーン
 /// </summary>
@@ -56,5 +58,5 @@ class GameScene {
 	uint32_t textureHandle_ = 0;
 	Sprite* sprite_ = nullptr;
 	Model* model_ = nullptr;
-	float viewAngle = 0;
+	XMFLOAT2 viewAngle = { 0, 0 };
 };

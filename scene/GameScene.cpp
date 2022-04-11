@@ -43,44 +43,61 @@ void GameScene::Update() {
 		transforms[i].UpdateMatrix();
 	}
 
-	XMFLOAT3 moveVecA = {0, 0, 0};
+	XMFLOAT3 moveVecA = { 0, 0, 0 };
 	XMFLOAT3 moveVecB = { 0, 0, 0 };
 	const float moveSpeed = 0.2f;
 	const float viewRotSpeed = 0.05f;
 
 	if (input_->PushKey(DIK_W)) {
-		moveVecA = { 0, 0, moveSpeed };
+		viewProjection_.eye.x += -moveSpeed * cos(XM_PI / 180 * viewAngle.x);
+		viewProjection_.eye.z += moveSpeed * sin(XM_PI / 180 * viewAngle.x);
 	}
-	else if (input_->PushKey(DIK_S)) {
-		moveVecA = { 0, 0, -moveSpeed };
+	if (input_->PushKey(DIK_S)) {
+		viewProjection_.eye.x += -moveSpeed * cos(XM_PI / 180 * (viewAngle.x + 180));
+		viewProjection_.eye.z += moveSpeed * sin(XM_PI / 180 * (viewAngle.x + 180));
 	}
-
-	if (input_->PushKey(DIK_LEFTARROW)) {
-		moveVecB = { -moveSpeed, 0, 0 };
+	if (input_->PushKey(DIK_A)) {
+		viewProjection_.eye.x += -moveSpeed * cos(XM_PI / 180 * (viewAngle.x - 90));
+		viewProjection_.eye.z += moveSpeed * sin(XM_PI / 180 * (viewAngle.x - 90));
 	}
-	else if (input_->PushKey(DIK_RIGHTARROW)) {
-		moveVecB = { moveSpeed, 0, 0 };
+	if (input_->PushKey(DIK_D)) {
+		viewProjection_.eye.x += -moveSpeed * cos(XM_PI / 180 * (viewAngle.x + 90));
+		viewProjection_.eye.z += moveSpeed * sin(XM_PI / 180 * (viewAngle.x + 90));
 	}
-
 	if (input_->PushKey(DIK_SPACE)) {
-		viewAngle += viewRotSpeed;
+		viewProjection_.eye.y += moveSpeed;
+	}
+	if (input_->PushKey(DIK_LSHIFT)) {
+		viewProjection_.eye.y -= moveSpeed;
 	}
 
-	viewProjection_.eye.x += moveVecA.x;
-	viewProjection_.eye.y += moveVecA.y;
-	viewProjection_.eye.z += moveVecA.z;
+	viewAngle.x += input_->GetMouseMove().lX / 10.0f;
+	viewAngle.y -= input_->GetMouseMove().lY / 10.0f;
 
-	viewProjection_.target.x += moveVecB.x;
-	viewProjection_.target.y += moveVecB.y;
-	viewProjection_.target.z += moveVecB.z;
+	if (viewAngle.x >= 360) {
+		viewAngle.x -= 360;
+	}
+	if (viewAngle.x < 0) {
+		viewAngle.x += 360;
+	}
 
-	viewProjection_.up = { cosf(viewAngle), sinf(viewAngle), 0 };
+	if (viewAngle.y > 90) {
+		viewAngle.y = 90;
+	}
+	if (viewAngle.y < -90) {
+		viewAngle.y = -90;
+	}
+
+	viewProjection_.target.x = viewProjection_.eye.x + -100 * cos(XM_PI / 180 * viewAngle.x) * cos(XM_PI / 180 * viewAngle.y);
+	viewProjection_.target.y = viewProjection_.eye.y + 100 * sin(XM_PI / 180 * viewAngle.y);
+	viewProjection_.target.z = viewProjection_.eye.z + 100 * sin(XM_PI / 180 * viewAngle.x) * cos(XM_PI / 180 * viewAngle.y);
 
 	viewProjection_.UpdateMatrix();
 
 	debugText_->Print("eye:(" + to_string(viewProjection_.eye.x) + ", " + to_string(viewProjection_.eye.y) + ", " + to_string(viewProjection_.eye.z) + ")", 50, 70, 1.0);
 	debugText_->Print("target:(" + to_string(viewProjection_.target.x) + ", " + to_string(viewProjection_.target.y) + ", " + to_string(viewProjection_.target.z) + ")", 50, 90, 1.0);
-	debugText_->Print("eye:(" + to_string(viewProjection_.up.x) + ", " + to_string(viewProjection_.up.y) + ", " + to_string(viewProjection_.up.z) + ")", 50, 110, 1.0);
+	debugText_->Print("up:(" + to_string(viewProjection_.up.x) + ", " + to_string(viewProjection_.up.y) + ", " + to_string(viewProjection_.up.z) + ")", 50, 110, 1.0);
+	debugText_->Print("angle:(" + to_string(viewAngle.x) + ", " + to_string(viewAngle.y) + ")", 50, 130, 1.0);
 
 }
 
