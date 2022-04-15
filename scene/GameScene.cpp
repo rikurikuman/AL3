@@ -26,6 +26,9 @@ void GameScene::Initialize() {
 		transforms[i].rotation_ = { rotDist(device), rotDist(device), rotDist(device) };
 		transforms[i].Initialize();
 	}
+	viewProjection_.fovAngleY = XMConvertToRadians(10.0f);
+	viewProjection_.nearZ = 52.0f;
+	viewProjection_.farZ = 53.0f;
 	viewProjection_.Initialize();
 	textureHandle_ = TextureManager::Load("mario.jpg");
 	sprite_ = Sprite::Create(textureHandle_, {100, 50});
@@ -43,7 +46,7 @@ void GameScene::Update() {
 		transforms[i].UpdateMatrix();
 	}
 
-	XMFLOAT3 moveVecA = {0, 0, 0};
+	/*XMFLOAT3 moveVecA = {0, 0, 0};
 	XMFLOAT3 moveVecB = { 0, 0, 0 };
 	const float moveSpeed = 0.2f;
 	const float viewRotSpeed = 0.05f;
@@ -62,10 +65,6 @@ void GameScene::Update() {
 		moveVecB = { moveSpeed, 0, 0 };
 	}
 
-	if (input_->PushKey(DIK_SPACE)) {
-		viewAngle += viewRotSpeed;
-	}
-
 	viewProjection_.eye.x += moveVecA.x;
 	viewProjection_.eye.y += moveVecA.y;
 	viewProjection_.eye.z += moveVecA.z;
@@ -74,13 +73,36 @@ void GameScene::Update() {
 	viewProjection_.target.y += moveVecB.y;
 	viewProjection_.target.z += moveVecB.z;
 
-	viewProjection_.up = { cosf(viewAngle), sinf(viewAngle), 0 };
+	viewProjection_.UpdateMatrix();*/
 
-	viewProjection_.UpdateMatrix();
+	{
+		if (input_->PushKey(DIK_W)) {
+			viewProjection_.fovAngleY += 0.01f;
+			viewProjection_.fovAngleY = min(viewProjection_.fovAngleY, XM_PI);
+		}
+		else if (input_->PushKey(DIK_S)) {
+			viewProjection_.fovAngleY -= 0.01f;
+			viewProjection_.fovAngleY = max(viewProjection_.fovAngleY, 0.01f);
+		}
+
+		if (input_->PushKey(DIK_UP)) {
+			viewProjection_.nearZ += 0.1f;
+		}
+		else if (input_->PushKey(DIK_DOWN)) {
+			viewProjection_.nearZ -= 0.1f;
+		}
+
+		viewProjection_.UpdateMatrix();
+
+		debugText_->SetPos(50, 130);
+		debugText_->Print("fovAngleY(Degree):" + to_string(XMConvertToDegrees(viewProjection_.fovAngleY)), 50, 130, 1.0f);
+		debugText_->Print("nearZ:" + to_string(viewProjection_.nearZ), 50, 150, 1.0f);
+		debugText_->Print("farZ:" + to_string(viewProjection_.farZ), 50, 170, 1.0f);
+	}
 
 	debugText_->Print("eye:(" + to_string(viewProjection_.eye.x) + ", " + to_string(viewProjection_.eye.y) + ", " + to_string(viewProjection_.eye.z) + ")", 50, 70, 1.0);
 	debugText_->Print("target:(" + to_string(viewProjection_.target.x) + ", " + to_string(viewProjection_.target.y) + ", " + to_string(viewProjection_.target.z) + ")", 50, 90, 1.0);
-	debugText_->Print("eye:(" + to_string(viewProjection_.up.x) + ", " + to_string(viewProjection_.up.y) + ", " + to_string(viewProjection_.up.z) + ")", 50, 110, 1.0);
+	debugText_->Print("up:(" + to_string(viewProjection_.up.x) + ", " + to_string(viewProjection_.up.y) + ", " + to_string(viewProjection_.up.z) + ")", 50, 110, 1.0);
 
 }
 
