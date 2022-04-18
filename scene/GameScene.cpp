@@ -17,18 +17,9 @@ void GameScene::Initialize() {
 	audio_ = Audio::GetInstance();
 	debugText_ = DebugText::GetInstance();
 
-	random_device device;
-	uniform_real_distribution<float> rotDist(0.0f, XM_2PI);
-	uniform_real_distribution<float> posDist(-20, 20);
+	transform.Initialize();
 
-	for (int i = 0; i < 100; i++) {
-		transforms[i].translation_ = { posDist(device), posDist(device), posDist(device) };
-		transforms[i].rotation_ = { rotDist(device), rotDist(device), rotDist(device) };
-		transforms[i].Initialize();
-	}
-	viewProjection_.fovAngleY = XMConvertToRadians(10.0f);
-	viewProjection_.nearZ = 52.0f;
-	viewProjection_.farZ = 53.0f;
+	viewProjection_.eye.y = 20;
 	viewProjection_.Initialize();
 	textureHandle_ = TextureManager::Load("mario.jpg");
 	sprite_ = Sprite::Create(textureHandle_, {100, 50});
@@ -36,73 +27,38 @@ void GameScene::Initialize() {
 }
 
 void GameScene::Update() {
-	random_device device;
-	uniform_real_distribution<float> rotDist(0.0f, XMConvertToRadians(5));
-
-	for (int i = 0; i < 100; i++) {
-		transforms[i].rotation_.x += rotDist(device);
-		transforms[i].rotation_.y += rotDist(device);
-		transforms[i].rotation_.z += rotDist(device);
-		transforms[i].UpdateMatrix();
+	if (input_->PushKey(DIK_A)) {
+		transform.rotation_.y -= 0.01f;
+	}
+	if (input_->PushKey(DIK_D)) {
+		transform.rotation_.y += 0.01f;
 	}
 
-	/*XMFLOAT3 moveVecA = {0, 0, 0};
-	XMFLOAT3 moveVecB = { 0, 0, 0 };
-	const float moveSpeed = 0.2f;
-	const float viewRotSpeed = 0.05f;
+	transform.UpdateMatrix();
 
+	XMFLOAT3 front(0, 0, 1);
+	XMFLOAT3 result(0, 0, 1);
+	//y軸回りの回転行列演算
+	result.x = cos(transform.rotation_.y) * front.x + sin(transform.rotation_.y) * front.z;
+	result.z = (-sin(transform.rotation_.y)) * front.x + cos(transform.rotation_.y) * front.z;
+
+	float moveSpeed = 0.02f;
 	if (input_->PushKey(DIK_W)) {
-		moveVecA = { 0, 0, moveSpeed };
+		transform.translation_.x += moveSpeed * result.x;
+		transform.translation_.z += moveSpeed * result.z;
 	}
-	else if (input_->PushKey(DIK_S)) {
-		moveVecA = { 0, 0, -moveSpeed };
-	}
-
-	if (input_->PushKey(DIK_LEFTARROW)) {
-		moveVecB = { -moveSpeed, 0, 0 };
-	}
-	else if (input_->PushKey(DIK_RIGHTARROW)) {
-		moveVecB = { moveSpeed, 0, 0 };
+	if (input_->PushKey(DIK_S)) {
+		transform.translation_.x -= moveSpeed * result.x;
+		transform.translation_.z -= moveSpeed * result.z;
 	}
 
-	viewProjection_.eye.x += moveVecA.x;
-	viewProjection_.eye.y += moveVecA.y;
-	viewProjection_.eye.z += moveVecA.z;
+	transform.UpdateMatrix();
 
-	viewProjection_.target.x += moveVecB.x;
-	viewProjection_.target.y += moveVecB.y;
-	viewProjection_.target.z += moveVecB.z;
-
-	viewProjection_.UpdateMatrix();*/
-
-	{
-		if (input_->PushKey(DIK_W)) {
-			viewProjection_.fovAngleY += 0.01f;
-			viewProjection_.fovAngleY = min(viewProjection_.fovAngleY, XM_PI);
-		}
-		else if (input_->PushKey(DIK_S)) {
-			viewProjection_.fovAngleY -= 0.01f;
-			viewProjection_.fovAngleY = max(viewProjection_.fovAngleY, 0.01f);
-		}
-
-		if (input_->PushKey(DIK_UP)) {
-			viewProjection_.nearZ += 0.1f;
-		}
-		else if (input_->PushKey(DIK_DOWN)) {
-			viewProjection_.nearZ -= 0.1f;
-		}
-
-		viewProjection_.UpdateMatrix();
-
-		debugText_->SetPos(50, 130);
-		debugText_->Print("fovAngleY(Degree):" + to_string(XMConvertToDegrees(viewProjection_.fovAngleY)), 50, 130, 1.0f);
-		debugText_->Print("nearZ:" + to_string(viewProjection_.nearZ), 50, 150, 1.0f);
-		debugText_->Print("farZ:" + to_string(viewProjection_.farZ), 50, 170, 1.0f);
-	}
-
-	debugText_->Print("eye:(" + to_string(viewProjection_.eye.x) + ", " + to_string(viewProjection_.eye.y) + ", " + to_string(viewProjection_.eye.z) + ")", 50, 70, 1.0);
-	debugText_->Print("target:(" + to_string(viewProjection_.target.x) + ", " + to_string(viewProjection_.target.y) + ", " + to_string(viewProjection_.target.z) + ")", 50, 90, 1.0);
-	debugText_->Print("up:(" + to_string(viewProjection_.up.x) + ", " + to_string(viewProjection_.up.y) + ", " + to_string(viewProjection_.up.z) + ")", 50, 110, 1.0);
+	debugText_->Print("objPos:(" + to_string(transform.translation_.x) + ", " + to_string(transform.translation_.y) + ", " + to_string(transform.translation_.z) + ")", 20, 20, 1);
+	debugText_->Print("objRotR:(" + to_string(transform.rotation_.x) + ", " + to_string(transform.rotation_.y) + ", " + to_string(transform.rotation_.z) + ")", 20, 40, 1);
+	debugText_->Print("objRotD:(" + to_string(XMConvertToDegrees(transform.rotation_.x)) + ", " + to_string(XMConvertToDegrees(transform.rotation_.y)) + ", " + to_string(XMConvertToDegrees(transform.rotation_.z)) + ")", 20, 60, 1);
+	debugText_->Print("frontRotR:(" + to_string(result.x) + ", " + to_string(result.y) + ", " + to_string(result.z) + ")", 20, 80, 1);
+	debugText_->Print("frontRotD:(" + to_string(XMConvertToDegrees(result.x)) + ", " + to_string(XMConvertToDegrees(result.y)) + ", " + to_string(XMConvertToDegrees(result.z)) + ")", 20, 100, 1);
 
 }
 
@@ -132,9 +88,7 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
-	for (int i = 0; i < 100; i++) {
-		model_->Draw(transforms[i], viewProjection_, textureHandle_);
-	}
+	model_->Draw(transform, viewProjection_, textureHandle_);
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
