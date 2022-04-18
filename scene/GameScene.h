@@ -56,5 +56,5 @@ class GameScene {
 	Sprite* sprite_ = nullptr;
 	Model* model_ = nullptr;
 	WorldTransform transform;
-	
+	WorldTransform transformConst;
 };
