@@ -6,6 +6,7 @@
 /// デバッグ用カメラ
 /// </summary>
 class DebugCamera {
+	using XMMATRIX = DirectX::XMMATRIX;
 
   public:
 	/// <summary>
@@ -35,9 +36,9 @@ class DebugCamera {
 	float scaleX_ = 1.0f;
 	float scaleY_ = 1.0f;
 	// 回転行列
-	Matrix4 matRot = MathUtility::Matrix4Identity();
+	XMMATRIX matRot = DirectX::XMMatrixIdentity();
 	// ビュープロジェクション
 	ViewProjection viewProjection_;
 
-	void MultiplyMatrix(const Matrix4& matrix);
+	void MultiplyMatrix(const DirectX::XMMATRIX& matrix);
 };

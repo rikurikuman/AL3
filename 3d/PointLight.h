@@ -1,22 +1,30 @@
 ﻿#pragma once
 
-#include "Vector3.h"
+#include <DirectXMath.h>
 
 /// <summary>
 /// 点光源
 /// </summary>
 class PointLight
 {
+private: // エイリアス
+	// DirectX::を省略
+	using XMFLOAT2 = DirectX::XMFLOAT2;
+	using XMFLOAT3 = DirectX::XMFLOAT3;
+	using XMFLOAT4 = DirectX::XMFLOAT4;
+	using XMVECTOR = DirectX::XMVECTOR;
+	using XMMATRIX = DirectX::XMMATRIX;
+
 public: // サブクラス
 
 	// 定数バッファ用データ構造体
 	struct ConstBufferData
 	{
-		Vector3 lightpos;
+		XMFLOAT3 lightpos;
 		float pad1;
-		Vector3 lightcolor;
+		XMFLOAT3 lightcolor;
 		float pad2;
-		Vector3 lightatten;
+		XMFLOAT3 lightatten;
 		unsigned int active;
 	};
 
@@ -25,37 +33,37 @@ public: // メンバ関数
 	/// ライト座標をセット
 	/// </summary>
 	/// <param name="lightpos">ライト座標</param>
-	inline void SetLightPos(const Vector3& lightpos) { this->lightpos = lightpos; }
+	inline void SetLightPos(const XMFLOAT3& lightpos) { this->lightpos = lightpos; }
 
 	/// <summary>
 	/// ライト座標を取得
 	/// </summary>
 	/// <returns>ライト座標</returns>
-	inline const Vector3& GetLightPos() { return lightpos; }
+	inline const XMFLOAT3& GetLightPos() { return lightpos; }
 
 	/// <summary>
 	/// ライト色をセット
 	/// </summary>
 	/// <param name="lightcolor">ライト色</param>
-	inline void SetLightColor(const Vector3& lightcolor) { this->lightcolor = lightcolor; }
+	inline void SetLightColor(const XMFLOAT3& lightcolor) { this->lightcolor = lightcolor; }
 
 	/// <summary>
 	/// ライト色を取得
 	/// </summary>
 	/// <returns>ライト色</returns>
-	inline const Vector3& GetLightColor() { return lightcolor; }
+	inline const XMFLOAT3& GetLightColor() { return lightcolor; }
 
 	/// <summary>
 	/// ライト距離減衰係数をセット
 	/// </summary>
 	/// <param name="lightatten">ライト距離減衰係数</param>
-	inline void SetLightAtten(const Vector3& lightAtten) { this->lightAtten = lightAtten; }
+	inline void SetLightAtten(const XMFLOAT3& lightAtten) { this->lightAtten = lightAtten; }
 
 	/// <summary>
 	/// ライト距離減衰係数を取得
 	/// </summary>
 	/// <returns>ライト距離減衰係数</returns>
-	inline const Vector3& GetLightAtten() { return lightAtten; }
+	inline const XMFLOAT3& GetLightAtten() { return lightAtten; }
 
 	/// <summary>
 	/// 有効フラグをセット
@@ -71,11 +79,11 @@ public: // メンバ関数
 
 private: // メンバ変数
 	// ライト座標（ワールド座標系）
-	Vector3 lightpos = { 0,0,0 };
+	XMFLOAT3 lightpos = { 0,0,0 };
 	// ライト色
-	Vector3 lightcolor = { 1,1,1 };
+	XMFLOAT3 lightcolor = { 1,1,1 };
 	// ライト距離減衰係数
-	Vector3 lightAtten = { 1.0f, 1.0f, 1.0f };
+	XMFLOAT3 lightAtten = { 1.0f, 1.0f, 1.0f };
 	// 有効フラグ
 	bool active = false;
 };
