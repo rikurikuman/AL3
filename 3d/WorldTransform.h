@@ -1,12 +1,13 @@
 ﻿#pragma once
 
-#include <DirectXMath.h>
+#include "Vector3.h"
+#include "Matrix4.h"
 #include <d3d12.h>
 #include <wrl.h>
 
 // 定数バッファ用データ構造体
 struct ConstBufferDataWorldTransform {
-	DirectX::XMMATRIX matWorld; // ローカル → ワールド変換行列
+	Matrix4 matWorld;           // ローカル → ワールド変換行列
 };
 
 /// <summary>
@@ -18,13 +19,13 @@ struct WorldTransform {
 	// マッピング済みアドレス
 	ConstBufferDataWorldTransform* constMap = nullptr;
 	// ローカルスケール
-	DirectX::XMFLOAT3 scale_ = {1, 1, 1};
+	Vector3 scale_ = {1, 1, 1};
 	// X,Y,Z軸回りのローカル回転角
-	DirectX::XMFLOAT3 rotation_ = {0, 0, 0};
+	Vector3 rotation_ = {0, 0, 0};
 	// ローカル座標
-	DirectX::XMFLOAT3 translation_ = {0, 0, 0};
+	Vector3 translation_ = {0, 0, 0};
 	// ローカル → ワールド変換行列
-	DirectX::XMMATRIX matWorld_;
+	Matrix4 matWorld_;
 	// 親となるワールド変換へのポインタ
 	WorldTransform* parent_ = nullptr;
 
@@ -41,7 +42,7 @@ struct WorldTransform {
 	/// </summary>
 	void Map();
 	/// <summary>
-	/// 行列を更新する
+	/// 行列を転送する
 	/// </summary>
-	void UpdateMatrix();
+	void TransferMatrix();
 };

@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include <DirectXMath.h>
+#include "Vector2.h"
 #include <Windows.h>
 #include <array>
 #include <vector>
@@ -113,7 +113,7 @@ class Input {
 	/// マウスの位置を取得する（ウィンドウ座標系）
 	/// </summary>
 	/// <returns>マウスの位置</returns>
-	const DirectX::XMFLOAT2& GetMousePosition() const;
+	const Vector2& GetMousePosition() const;
 
 	/// <summary>
 	/// 現在のジョイスティック状態を取得する
@@ -181,5 +181,5 @@ class Input {
 	DIMOUSESTATE2 mouse_;
 	DIMOUSESTATE2 mousePre_;
 	HWND hwnd_;
-	DirectX::XMFLOAT2 mousePosition_;
+	Vector2 mousePosition_;
 };

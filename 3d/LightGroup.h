@@ -3,7 +3,8 @@
 #include <Windows.h>
 #include <wrl.h>
 #include <d3d12.h>
-#include <DirectXMath.h>
+#include "Vector2.h"
+#include "Vector3.h"
 #include <d3dx12.h>
 
 #include "DirectionalLight.h"
@@ -19,12 +20,6 @@ class LightGroup
 private: // エイリアス
 	// Microsoft::WRL::を省略
 	template <class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
-	// DirectX::を省略
-	using XMFLOAT2 = DirectX::XMFLOAT2;
-	using XMFLOAT3 = DirectX::XMFLOAT3;
-	using XMFLOAT4 = DirectX::XMFLOAT4;
-	using XMVECTOR = DirectX::XMVECTOR;
-	using XMMATRIX = DirectX::XMMATRIX;
 
 public: // 定数
 	// 平行光源の数
@@ -42,7 +37,7 @@ public: // サブクラス
 	struct ConstBufferData
 	{
 		// 環境光の色
-		XMFLOAT3 ambientColor;
+		Vector3 ambientColor;
 		float pad1;
 		// 平行光源用
 		DirectionalLight::ConstBufferData dirLights[kDirLightNum];
@@ -91,7 +86,7 @@ public: // メンバ関数
 	/// 環境光のライト色をセット
 	/// </summary>
 	/// <param name="color">ライト色</param>
-	void SetAmbientColor(const XMFLOAT3& color);
+	void SetAmbientColor(const Vector3& color);
 
 	/// <summary>
 	/// 平行光源の有効フラグをセット
@@ -105,14 +100,14 @@ public: // メンバ関数
 	/// </summary>
 	/// <param name="index">ライト番号</param>
 	/// <param name="lightdir">ライト方向</param>
-	void SetDirLightDir(int index, const XMVECTOR& lightdir);
+	void SetDirLightDir(int index, const Vector3& lightdir);
 
 	/// <summary>
 	/// 平行光源のライト色をセット
 	/// </summary>
 	/// <param name="index">ライト番号</param>
 	/// <param name="lightcolor">ライト色</param>
-	void SetDirLightColor(int index, const XMFLOAT3& lightcolor);
+	void SetDirLightColor(int index, const Vector3& lightcolor);
 
 	/// <summary>
 	/// 点光源の有効フラグをセット
@@ -126,21 +121,21 @@ public: // メンバ関数
 	/// </summary>
 	/// <param name="index">ライト番号</param>
 	/// <param name="lightpos">ライト座標</param>
-	void SetPointLightPos(int index, const XMFLOAT3& lightpos);
+	void SetPointLightPos(int index, const Vector3& lightpos);
 
 	/// <summary>
 	/// 点光源のライト色をセット
 	/// </summary>
 	/// <param name="index">ライト番号</param>
 	/// <param name="lightcolor">ライト色</param>
-	void SetPointLightColor(int index, const XMFLOAT3& lightcolor);
+	void SetPointLightColor(int index, const Vector3& lightcolor);
 
 	/// <summary>
 	/// 点光源のライト距離減衰係数をセット
 	/// </summary>
 	/// <param name="index">ライト番号</param>
 	/// <param name="lightatten">ライト距離減衰係数</param>
-	void SetPointLightAtten(int index, const XMFLOAT3& lightAtten);
+	void SetPointLightAtten(int index, const Vector3& lightAtten);
 
 	/// <summary>
 	/// スポットライトの有効フラグをセット
@@ -154,35 +149,35 @@ public: // メンバ関数
 	/// </summary>
 	/// <param name="index">ライト番号</param>
 	/// <param name="lightdir">ライト方向</param>
-	void SetSpotLightDir(int index, const XMVECTOR& lightdir);
+	void SetSpotLightDir(int index, const Vector3& lightdir);
 
 	/// <summary>
 	/// スポットライトのライト座標をセット
 	/// </summary>
 	/// <param name="index">ライト番号</param>
 	/// <param name="lightpos">ライト座標</param>
-	void SetSpotLightPos(int index, const XMFLOAT3& lightpos);
+	void SetSpotLightPos(int index, const Vector3& lightpos);
 
 	/// <summary>
 	/// スポットライトのライト色をセット
 	/// </summary>
 	/// <param name="index">ライト番号</param>
 	/// <param name="lightcolor">ライト色</param>
-	void SetSpotLightColor(int index, const XMFLOAT3& lightcolor);
+	void SetSpotLightColor(int index, const Vector3& lightcolor);
 
 	/// <summary>
 	/// スポットライトのライト距離減衰係数をセット
 	/// </summary>
 	/// <param name="index">ライト番号</param>
 	/// <param name="lightatten">ライト距離減衰係数</param>
-	void SetSpotLightAtten(int index, const XMFLOAT3& lightAtten);
+	void SetSpotLightAtten(int index, const Vector3& lightAtten);
 
 	/// <summary>
 	/// スポットライトのライト減衰角度をセット
 	/// </summary>
 	/// <param name="index">ライト番号</param>
 	/// <param name="lightFactorAngle">x:減衰開始角度 y:減衰終了角度</param>
-	void SetSpotLightFactorAngle(int index, const XMFLOAT2& lightFactorAngle);
+	void SetSpotLightFactorAngle(int index, const Vector2& lightFactorAngle);
 
 	/// <summary>
 	/// 丸影の有効フラグをセット
@@ -196,14 +191,14 @@ public: // メンバ関数
 	/// </summary>
 	/// <param name="index">番号</param>
 	/// <param name="lightpos">キャスター座標</param>
-	void SetCircleShadowCasterPos(int index, const XMFLOAT3& casterPos);
+	void SetCircleShadowCasterPos(int index, const Vector3& casterPos);
 
 	/// <summary>
 	/// 丸影の方向をセット
 	/// </summary>
 	/// <param name="index">番号</param>
 	/// <param name="lightdir">方向</param>
-	void SetCircleShadowDir(int index, const XMVECTOR& lightdir);
+	void SetCircleShadowDir(int index, const Vector3& lightdir);
 
 	/// <summary>
 	/// 丸影のキャスターとライトの距離をセット
@@ -217,14 +212,14 @@ public: // メンバ関数
 	/// </summary>
 	/// <param name="index">番号</param>
 	/// <param name="lightatten">距離減衰係数</param>
-	void SetCircleShadowAtten(int index, const XMFLOAT3& lightAtten);
+	void SetCircleShadowAtten(int index, const Vector3& lightAtten);
 
 	/// <summary>
 	/// 丸影の減衰角度をセット
 	/// </summary>
 	/// <param name="index">番号</param>
 	/// <param name="lightFactorAngle">x:減衰開始角度 y:減衰終了角度</param>
-	void SetCircleShadowFactorAngle(int index, const XMFLOAT2& lightFactorAngle);
+	void SetCircleShadowFactorAngle(int index, const Vector2& lightFactorAngle);
 
 private: // メンバ変数
 	// 定数バッファ
@@ -233,7 +228,7 @@ private: // メンバ変数
 	ConstBufferData* constMap_ = nullptr;
 
 	// 環境光の色
-	XMFLOAT3 ambientColor_ = { 1,1,1 };
+	Vector3 ambientColor_ = { 1,1,1 };
 
 	// 平行光源の配列
 	DirectionalLight dirLights_[kDirLightNum];

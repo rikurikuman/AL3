@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include <DirectXMath.h>
+#include "Vector3.h"
 #include <d3d12.h>
 #include <d3dx12.h>
 #include <string>
@@ -10,23 +10,14 @@
 /// マテリアル
 /// </summary>
 class Material {
-  private: // エイリアス
-	// Microsoft::WRL::を省略
-	template<class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
-	// DirectX::を省略
-	using XMFLOAT2 = DirectX::XMFLOAT2;
-	using XMFLOAT3 = DirectX::XMFLOAT3;
-	using XMFLOAT4 = DirectX::XMFLOAT4;
-	using XMMATRIX = DirectX::XMMATRIX;
-
   public: // サブクラス
 	// 定数バッファ用データ構造体
 	struct ConstBufferData {
-		XMFLOAT3 ambient;  // アンビエント係数
+		Vector3 ambient;  // アンビエント係数
 		float pad1;        // パディング
-		XMFLOAT3 diffuse;  // ディフューズ係数
+		Vector3 diffuse;  // ディフューズ係数
 		float pad2;        // パディング
-		XMFLOAT3 specular; // スペキュラー係数
+		Vector3 specular; // スペキュラー係数
 		float alpha;       // アルファ
 	};
 
@@ -39,9 +30,9 @@ class Material {
 
   public:
 	std::string name_;            // マテリアル名
-	XMFLOAT3 ambient_;            // アンビエント影響度
-	XMFLOAT3 diffuse_;            // ディフューズ影響度
-	XMFLOAT3 specular_;           // スペキュラー影響度
+	Vector3 ambient_;            // アンビエント影響度
+	Vector3 diffuse_;            // ディフューズ影響度
+	Vector3 specular_;           // スペキュラー影響度
 	float alpha_;                 // アルファ
 	std::string textureFilename_; // テクスチャファイル名
 
@@ -88,7 +79,7 @@ class Material {
 
   private:
 	// 定数バッファ
-	ComPtr<ID3D12Resource> constBuff_;
+	Microsoft::WRL::ComPtr<ID3D12Resource> constBuff_;
 	// 定数バッファのマップ
 	ConstBufferData* constMap_ = nullptr;
 	// テクスチャハンドル

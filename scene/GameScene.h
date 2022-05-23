@@ -9,7 +9,7 @@
 #include "Sprite.h"
 #include "ViewProjection.h"
 #include "WorldTransform.h"
-#include <DirectXMath.h>
+#include "DebugCamera.h"
 
 /// <summary>
 /// ゲームシーン
@@ -51,10 +51,9 @@ class GameScene {
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>
-	ViewProjection viewProjection_;
-	uint32_t textureHandle_ = 0;
-	Sprite* sprite_ = nullptr;
-	Model* model_ = nullptr;
-	WorldTransform transform;
-	WorldTransform transformConst;
+	DebugCamera* debugCamera = nullptr;
+	uint32_t textureHandle = 0;
+	Model* model = nullptr;
+	WorldTransform worldTransform;
+	ViewProjection viewProjection;
 };

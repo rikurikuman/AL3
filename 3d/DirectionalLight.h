@@ -1,27 +1,20 @@
 ﻿#pragma once
-
-#include <DirectXMath.h>
+#include "Vector3.h"
+#include "MathUtility.h"
 
 /// <summary>
 /// 平行光源
 /// </summary>
 class DirectionalLight
 {
-private: // エイリアス
-	// DirectX::を省略
-	using XMFLOAT2 = DirectX::XMFLOAT2;
-	using XMFLOAT3 = DirectX::XMFLOAT3;
-	using XMFLOAT4 = DirectX::XMFLOAT4;
-	using XMVECTOR = DirectX::XMVECTOR;
-	using XMMATRIX = DirectX::XMMATRIX;
-
 public: // サブクラス
 
 	// 定数バッファ用データ構造体
 	struct ConstBufferData
 	{
-		XMVECTOR lightv;
-		XMFLOAT3 lightcolor;
+		Vector3 lightv;
+		float pad1;
+		Vector3 lightcolor;
 		unsigned int active;
 	};
 
@@ -30,25 +23,28 @@ public: // メンバ関数
 	/// ライト方向をセット
 	/// </summary>
 	/// <param name="lightdir">ライト方向</param>
-	inline void SetLightDir(const XMVECTOR& lightdir) { this->lightdir = DirectX::XMVector3Normalize(lightdir); }
+  inline void SetLightDir(const Vector3& lightdir) {
+	  Vector3 result = lightdir;
+	  this->lightdir = MathUtility::Vector3Normalize(result);
+  }
 
 	/// <summary>
 	/// ライト方向を取得
 	/// </summary>
 	/// <returns>ライト方向</returns>
-	inline const XMVECTOR& GetLightDir() { return lightdir; }
+	inline const Vector3& GetLightDir() { return lightdir; }
 
 	/// <summary>
 	/// ライト色をセット
 	/// </summary>
 	/// <param name="lightcolor">ライト色</param>
-	inline void SetLightColor(const XMFLOAT3& lightcolor) { this->lightcolor = lightcolor; }
+	inline void SetLightColor(const Vector3& lightcolor) { this->lightcolor = lightcolor; }
 
 	/// <summary>
 	/// ライト色を取得
 	/// </summary>
 	/// <returns>ライト色</returns>
-	inline const XMFLOAT3& GetLightColor() { return lightcolor; }
+	inline const Vector3& GetLightColor() { return lightcolor; }
 
 	/// <summary>
 	/// 有効フラグをセット
@@ -64,9 +60,9 @@ public: // メンバ関数
 
 private: // メンバ変数
 	// ライト方向（単位ベクトル）
-	XMVECTOR lightdir = { 1,0,0,0 };
+	Vector3 lightdir = { 1,0,0 };
 	// ライト色
-	XMFLOAT3 lightcolor = { 1,1,1 };
+	Vector3 lightcolor = {1, 1, 1};
 	// 有効フラグ
 	bool active = false;
 };

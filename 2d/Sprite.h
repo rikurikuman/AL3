@@ -1,6 +1,9 @@
 ﻿#pragma once
 
-#include <DirectXMath.h>
+#include "Vector2.h"
+#include "Vector3.h"
+#include "Vector4.h"
+#include "Matrix4.h"
 #include <Windows.h>
 #include <d3d12.h>
 #include <string>
@@ -27,16 +30,16 @@ class Sprite {
 	/// 頂点データ構造体
 	/// </summary>
 	struct VertexPosUv {
-		DirectX::XMFLOAT3 pos; // xyz座標
-		DirectX::XMFLOAT2 uv;  // uv座標
+		Vector3 pos; // xyz座標
+		Vector2 uv;  // uv座標
 	};
 
 	/// <summary>
 	/// 定数バッファ用データ構造体
 	/// </summary>
 	struct ConstBufferData {
-		DirectX::XMFLOAT4 color; // 色 (RGBA)
-		DirectX::XMMATRIX mat;   // ３Ｄ変換行列
+		Vector4 color; // 色 (RGBA)
+		Matrix4 mat;   // ３Ｄ変換行列
 	};
 
   public: // 静的メンバ関数
@@ -73,8 +76,8 @@ class Sprite {
 	/// <param name="isFlipY">上下反転</param>
 	/// <returns>生成されたスプライト</returns>
 	static Sprite* Create(
-	  uint32_t textureHandle, DirectX::XMFLOAT2 position, DirectX::XMFLOAT4 color = {1, 1, 1, 1},
-	  DirectX::XMFLOAT2 anchorpoint = {0.0f, 0.0f}, bool isFlipX = false, bool isFlipY = false);
+	  uint32_t textureHandle, Vector2 position, Vector4 color = {1, 1, 1, 1},
+	  Vector2 anchorpoint = {0.0f, 0.0f}, bool isFlipX = false, bool isFlipY = false);
 
   private: // 静的メンバ変数
 	// 頂点数
@@ -92,7 +95,7 @@ class Sprite {
 	  Microsoft::WRL::ComPtr<ID3D12PipelineState>, size_t(BlendMode::kCountOfBlendMode)>
 	  sPipelineStates_;
 	// 射影行列
-	static DirectX::XMMATRIX sMatProjection_;
+	static Matrix4 sMatProjection_;
 
   public: // メンバ関数
 	/// <summary>
@@ -103,8 +106,8 @@ class Sprite {
 	/// コンストラクタ
 	/// </summary>
 	Sprite(
-	  uint32_t textureHandle, DirectX::XMFLOAT2 position, DirectX::XMFLOAT2 size,
-	  DirectX::XMFLOAT4 color, DirectX::XMFLOAT2 anchorpoint, bool isFlipX, bool isFlipY);
+	  uint32_t textureHandle, Vector2 position, Vector2 size,
+	  Vector4 color, Vector2 anchorpoint, bool isFlipX, bool isFlipY);
 
 	/// <summary>
 	/// 初期化
@@ -124,9 +127,9 @@ class Sprite {
 	/// 座標の設定
 	/// </summary>
 	/// <param name="position">座標</param>
-	void SetPosition(const DirectX::XMFLOAT2& position);
+	void SetPosition(const Vector2& position);
 
-	const DirectX::XMFLOAT2& GetPosition() { return position_; }
+	const Vector2& GetPosition() { return position_; }
 
 	/// <summary>
 	/// 角度の設定
@@ -140,25 +143,25 @@ class Sprite {
 	/// サイズの設定
 	/// </summary>
 	/// <param name="size">サイズ</param>
-	void SetSize(const DirectX::XMFLOAT2& size);
+	void SetSize(const Vector2& size);
 
-	const DirectX::XMFLOAT2& GetSize() { return size_; }
+	const Vector2& GetSize() { return size_; }
 
 	/// <summary>
 	/// アンカーポイントの設定
 	/// </summary>
 	/// <param name="anchorpoint">アンカーポイント</param>
-	void SetAnchorPoint(const DirectX::XMFLOAT2& anchorpoint);
+	void SetAnchorPoint(const Vector2& anchorpoint);
 
-	const DirectX::XMFLOAT2& GetAnchorPoint() { return anchorPoint_; }
+	const Vector2& GetAnchorPoint() { return anchorPoint_; }
 
 	/// <summary>
 	/// 色の設定
 	/// </summary>
 	/// <param name="color">色</param>
-	void SetColor(const DirectX::XMFLOAT4& color) { color_ = color; };
+	void SetColor(const Vector4& color) { color_ = color; };
 
-	const DirectX::XMFLOAT4& GetColor() { return color_; }
+	const Vector4& GetColor() { return color_; }
 
 	/// <summary>
 	/// 左右反転の設定
@@ -181,7 +184,7 @@ class Sprite {
 	/// </summary>
 	/// <param name="texBase">テクスチャ左上座標</param>
 	/// <param name="texSize">テクスチャサイズ</param>
-	void SetTextureRect(const DirectX::XMFLOAT2& texBase, const DirectX::XMFLOAT2& texSize);
+	void SetTextureRect(const Vector2& texBase, const Vector2& texSize);
 
 	/// <summary>
 	/// 描画
@@ -204,23 +207,23 @@ class Sprite {
 	// Z軸回りの回転角
 	float rotation_ = 0.0f;
 	// 座標
-	DirectX::XMFLOAT2 position_{};
+	Vector2 position_{};
 	// スプライト幅、高さ
-	DirectX::XMFLOAT2 size_ = {100.0f, 100.0f};
+	Vector2 size_ = {100.0f, 100.0f};
 	// アンカーポイント
-	DirectX::XMFLOAT2 anchorPoint_ = {0, 0};
+	Vector2 anchorPoint_ = {0, 0};
 	// ワールド行列
-	DirectX::XMMATRIX matWorld_{};
+	Matrix4 matWorld_{};
 	// 色
-	DirectX::XMFLOAT4 color_ = {1, 1, 1, 1};
+	Vector4 color_ = {1, 1, 1, 1};
 	// 左右反転
 	bool isFlipX_ = false;
 	// 上下反転
 	bool isFlipY_ = false;
 	// テクスチャ始点
-	DirectX::XMFLOAT2 texBase_ = {0, 0};
+	Vector2 texBase_ = {0, 0};
 	// テクスチャ幅、高さ
-	DirectX::XMFLOAT2 texSize_ = {100.0f, 100.0f};
+	Vector2 texSize_ = {100.0f, 100.0f};
 	// リソース設定
 	D3D12_RESOURCE_DESC resourceDesc_;
 
