@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include "Vector3.h"
+
 /// <summary>
 /// 行列
 /// </summary>
@@ -18,4 +20,21 @@ class Matrix4 {
 
 	// 代入演算子オーバーロード
 	Matrix4& operator*=(const Matrix4& m2);
+
+	static Matrix4 Identity();
+
+	static Matrix4 Translation(float x, float y, float z);
+	static Matrix4 Scaling(float x, float y, float z);
+
+	static Matrix4 RotationX(float rad);
+	static Matrix4 RotationY(float rad);
+	static Matrix4 RotationZ(float rad);
+
+	static Matrix4 RotationZXY(float radX, float radY, float radZ);
+	
+	static Matrix4 View(Vector3 eye, Vector3 target, Vector3 up);
+
+	static Matrix4 OrthoGraphicProjection(float left, float right, float top, float bottom, float nearZ, float farZ);
+	static Matrix4 PerspectiveProjection(float fov, float aspect, float nearZ, float farZ);
+
 };

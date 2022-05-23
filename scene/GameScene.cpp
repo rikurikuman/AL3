@@ -28,6 +28,12 @@ void GameScene::Initialize() {
 	AxisIndicator::GetInstance()->SetTargetViewProjection(&debugCamera->GetViewProjection());
 
 	PrimitiveDrawer::GetInstance()->SetViewProjection(&debugCamera->GetViewProjection());
+
+	worldTransform.matWorld_ = Matrix4::Identity();
+	worldTransform.matWorld_ *= Matrix4::Scaling(5, 5, 1);
+	worldTransform.matWorld_ *= Matrix4::RotationZXY(45, 45, 0);
+	worldTransform.matWorld_ *= Matrix4::Translation(10, 10, 10);
+	worldTransform.TransferMatrix();
 }
 
 void GameScene::Update() {
