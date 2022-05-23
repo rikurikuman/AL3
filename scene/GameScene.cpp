@@ -29,13 +29,34 @@ void GameScene::Initialize() {
 	uniform_real_distribution<float> rotDist(0.0f, 1.0f);
 	uniform_real_distribution<float> posDist(-20, 20);
 
-	for (int i = 0; i < 100; i++) {
-		worldTransforms[i].Initialize();
+	worldTransforms[kSpine].parent_ = &worldTransforms[kRoot];
+	worldTransforms[kSpine].translation_ = { 0, 4.5f, 0 };
 
-		worldTransforms[i].matWorld_ = Matrix4::Identity();
-		worldTransforms[i].matWorld_ *= Matrix4::RotationZXY(rotDist(device), rotDist(device), rotDist(device));
-		worldTransforms[i].matWorld_ *= Matrix4::Translation(posDist(device), posDist(device), posDist(device));
-		worldTransforms[i].TransferMatrix();
+	worldTransforms[kChest].parent_ = &worldTransforms[kSpine];
+	worldTransforms[kChest].translation_ = {0, 1, 0};
+	worldTransforms[kHead].parent_ = &worldTransforms[kChest];
+	worldTransforms[kHead].translation_ = { 0, 2, 0.5f };
+	worldTransforms[kArmL].parent_ = &worldTransforms[kChest];
+	worldTransforms[kArmL].translation_ = { -2, 0, 0 };
+	worldTransforms[kArmR].parent_ = &worldTransforms[kChest];
+	worldTransforms[kArmR].translation_ = { 2, 0, 0 };
+
+	worldTransforms[kHip].parent_ = &worldTransforms[kSpine];
+	worldTransforms[kHip].translation_ = { 0, -1, 0 };
+	worldTransforms[kLegL].parent_ = &worldTransforms[kHip];
+	worldTransforms[kLegL].translation_ = { -2, -2, 0 };
+	worldTransforms[kLegR].parent_ = &worldTransforms[kHip];
+	worldTransforms[kLegR].translation_ = { 2, -2, 0 };
+
+	for (WorldTransform& worldTransform : worldTransforms) {
+		worldTransform.matWorld_ = Matrix4::Identity();
+		worldTransform.matWorld_ *= Matrix4::Scaling(worldTransform.scale_.x, worldTransform.scale_.y, worldTransform.scale_.z);
+		worldTransform.matWorld_ *= Matrix4::RotationZXY(worldTransform.rotation_.x, worldTransform.rotation_.y, worldTransform.rotation_.z);
+		worldTransform.matWorld_ *= Matrix4::Translation(worldTransform.translation_.x, worldTransform.translation_.y, worldTransform.translation_.z);
+		if (worldTransform.parent_ != nullptr) {
+			worldTransform.matWorld_ *= worldTransform.parent_->matWorld_;
+		}
+		worldTransform.Initialize();
 	}
 
 	viewProjection.eye = { 0, 0, -10 };
@@ -77,16 +98,34 @@ void GameScene::Update() {
 	}
 
 	if (input_->PushKey(DIK_UP)) {
-		viewProjection.fovAngleY += 0.01f;
-		if (viewProjection.fovAngleY > 3.141592653589793238462643383279f) {
-			viewProjection.fovAngleY = 3.141592653589793238462643383279f;
-		}
+		Vector3 v(0, 0, 1);
+		v *= worldTransforms[kRoot].matWorld_;
+		v.Normalize();
+		worldTransforms[kRoot].translation_ += v * moveSpeed;
 	}
 	else if (input_->PushKey(DIK_DOWN)) {
-		viewProjection.fovAngleY -= 0.01f;
-		if (viewProjection.fovAngleY < 0.01f) {
-			viewProjection.fovAngleY = 0.01f;
+		Vector3 v(0, 0, 1);
+		v *= worldTransforms[kRoot].matWorld_;
+		v.Normalize();
+		worldTransforms[kRoot].translation_ -= v * moveSpeed;
+	}
+
+	if (input_->PushKey(DIK_LEFT)) {
+		worldTransforms[kRoot].rotation_.y -= 0.1f;
+	}
+	else if (input_->PushKey(DIK_RIGHT)) {
+		worldTransforms[kRoot].rotation_.y += 0.1f;
+	}
+
+	for (WorldTransform& worldTransform : worldTransforms) {
+		worldTransform.matWorld_ = Matrix4::Identity();
+		worldTransform.matWorld_ *= Matrix4::Scaling(worldTransform.scale_.x, worldTransform.scale_.y, worldTransform.scale_.z);
+		worldTransform.matWorld_ *= Matrix4::RotationZXY(worldTransform.rotation_.x, worldTransform.rotation_.y, worldTransform.rotation_.z);
+		worldTransform.matWorld_ *= Matrix4::Translation(worldTransform.translation_.x, worldTransform.translation_.y, worldTransform.translation_.z);
+		if (worldTransform.parent_ != nullptr) {
+			worldTransform.matWorld_ *= worldTransform.parent_->matWorld_;
 		}
+		worldTransform.TransferMatrix();
 	}
 
 	viewProjection.eye += eyeMove;
@@ -124,7 +163,7 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
-	for (int i = 0; i < 100; i++) {
+	for (int i = 1; i < kNumPartId; i++) {
 		model->Draw(worldTransforms[i], viewProjection, textureHandle);
 	}
 

@@ -1,5 +1,6 @@
 #include "Vector3.h"
 #include <math.h>
+#include "Matrix4.h"
 
 Vector3 Vector3::operator+(const Vector3& a) const {
 	return Vector3(this->x + a.x, this->y + a.y, this->z + a.z);
@@ -66,4 +67,16 @@ Vector3 Vector3::GetNormalize() const {
 		dz = this->z / length;
 	}
 	return Vector3(dx, dy, dz);
+}
+
+Vector3& Vector3::operator*=(const Matrix4& m)
+{
+	Vector3 temp = Vector3(*this);
+	temp.x = this->x * m.m[0][0] + this->y * m.m[1][0] + this->z * m.m[2][0];
+	temp.y = this->x * m.m[0][1] + this->y * m.m[1][1] + this->z * m.m[2][1];
+	temp.z = this->x * m.m[0][2] + this->y * m.m[1][2] + this->z * m.m[2][2];
+	this->x = temp.x;
+	this->y = temp.y;
+	this->z = temp.z;
+	return *this;
 }

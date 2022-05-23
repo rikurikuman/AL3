@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+class Matrix4;
+
 /// <summary>
 /// 3次元ベクトル
 /// </summary>
@@ -50,4 +52,6 @@ class Vector3 {
 	//正規化ベクトルを取得
 	//（このインスタンスは書き換えずに別のインスタンスとして取得する）
 	Vector3 GetNormalize() const;
+
+	Vector3& operator*=(const Matrix4& m);
 };
