@@ -37,7 +37,7 @@ void GameScene::Initialize() {
 		worldTransforms[i].matWorld_ *= Matrix4::Translation(posDist(device), posDist(device), posDist(device));
 		worldTransforms[i].TransferMatrix();
 	}
-	
+
 	viewProjection.eye = { 0, 0, -10 };
 	viewProjection.Initialize();
 
@@ -76,13 +76,26 @@ void GameScene::Update() {
 		targetMove += x * moveSpeed;
 	}
 
+	if (input_->PushKey(DIK_UP)) {
+		viewProjection.fovAngleY += 0.01f;
+		if (viewProjection.fovAngleY > 3.141592653589793238462643383279f) {
+			viewProjection.fovAngleY = 3.141592653589793238462643383279f;
+		}
+	}
+	else if (input_->PushKey(DIK_DOWN)) {
+		viewProjection.fovAngleY -= 0.01f;
+		if (viewProjection.fovAngleY < 0.01f) {
+			viewProjection.fovAngleY = 0.01f;
+		}
+	}
+
 	viewProjection.eye += eyeMove;
 	viewProjection.target += targetMove;
 	viewProjection.UpdateMatrix();
 
 	debugText_->Print("eye:(" + to_string(viewProjection.eye.x) + ", " + to_string(viewProjection.eye.y) + ", " + to_string(viewProjection.eye.z) + ")", 50, 50, 1);
 	debugText_->Print("target:(" + to_string(viewProjection.target.x) + ", " + to_string(viewProjection.target.y) + ", " + to_string(viewProjection.target.z) + ")", 50, 70, 1);
-
+	debugText_->Print("fovAngleY:(" + to_string(viewProjection.fovAngleY * (180 / 3.141592653589793238462643383279f)) + ")", 50, 90, 1);
 }
 
 void GameScene::Draw() {
