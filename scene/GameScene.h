@@ -54,6 +54,6 @@ class GameScene {
 	DebugCamera* debugCamera = nullptr;
 	uint32_t textureHandle = 0;
 	Model* model = nullptr;
-	WorldTransform worldTransform;
+	WorldTransform worldTransforms[100];
 	ViewProjection viewProjection;
 };

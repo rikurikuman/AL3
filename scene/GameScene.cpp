@@ -3,6 +3,9 @@
 #include "AxisIndicator.h"
 #include "PrimitiveDrawer.h"
 #include <cassert>
+#include <random>
+
+using namespace std;
 
 GameScene::GameScene() {}
 
@@ -21,23 +24,65 @@ void GameScene::Initialize() {
 
 	textureHandle = TextureManager::Load("mario.jpg");
 	model = Model::Create();
-	worldTransform.Initialize();
+
+	random_device device;
+	uniform_real_distribution<float> rotDist(0.0f, 1.0f);
+	uniform_real_distribution<float> posDist(-20, 20);
+
+	for (int i = 0; i < 100; i++) {
+		worldTransforms[i].Initialize();
+
+		worldTransforms[i].matWorld_ = Matrix4::Identity();
+		worldTransforms[i].matWorld_ *= Matrix4::RotationZXY(rotDist(device), rotDist(device), rotDist(device));
+		worldTransforms[i].matWorld_ *= Matrix4::Translation(posDist(device), posDist(device), posDist(device));
+		worldTransforms[i].TransferMatrix();
+	}
+	
+	viewProjection.eye = { 0, 0, -10 };
 	viewProjection.Initialize();
 
 	AxisIndicator::GetInstance()->SetVisible(true);
-	AxisIndicator::GetInstance()->SetTargetViewProjection(&debugCamera->GetViewProjection());
+	AxisIndicator::GetInstance()->SetTargetViewProjection(&viewProjection);
 
-	PrimitiveDrawer::GetInstance()->SetViewProjection(&debugCamera->GetViewProjection());
-
-	worldTransform.matWorld_ = Matrix4::Identity();
-	worldTransform.matWorld_ *= Matrix4::Scaling(5, 5, 1);
-	worldTransform.matWorld_ *= Matrix4::RotationZXY(45, 45, 0);
-	worldTransform.matWorld_ *= Matrix4::Translation(10, 10, 10);
-	worldTransform.TransferMatrix();
+	PrimitiveDrawer::GetInstance()->SetViewProjection(&viewProjection);
 }
 
 void GameScene::Update() {
 	debugCamera->Update();
+
+	Vector3 eyeMove = Vector3();
+	Vector3 targetMove = Vector3();
+	const float moveSpeed = 0.2f;
+
+	if (input_->PushKey(DIK_W)) {
+		Vector3 z = (viewProjection.target - viewProjection.eye).Normalize();
+		eyeMove += z * moveSpeed;
+		targetMove += z * moveSpeed;
+	}
+	else if (input_->PushKey(DIK_S)) {
+		Vector3 z = (viewProjection.target - viewProjection.eye).Normalize();
+		eyeMove -= z * moveSpeed;
+		targetMove -= z * moveSpeed;
+	}
+
+	if (input_->PushKey(DIK_A)) {
+		Vector3 x = viewProjection.up.Cross((viewProjection.target - viewProjection.eye));
+		x.Normalize();
+		targetMove -= x * moveSpeed;
+	}
+	else if (input_->PushKey(DIK_D)) {
+		Vector3 x = viewProjection.up.Cross((viewProjection.target - viewProjection.eye));
+		x.Normalize();
+		targetMove += x * moveSpeed;
+	}
+
+	viewProjection.eye += eyeMove;
+	viewProjection.target += targetMove;
+	viewProjection.UpdateMatrix();
+
+	debugText_->Print("eye:(" + to_string(viewProjection.eye.x) + ", " + to_string(viewProjection.eye.y) + ", " + to_string(viewProjection.eye.z) + ")", 50, 50, 1);
+	debugText_->Print("target:(" + to_string(viewProjection.target.x) + ", " + to_string(viewProjection.target.y) + ", " + to_string(viewProjection.target.z) + ")", 50, 70, 1);
+
 }
 
 void GameScene::Draw() {
@@ -66,7 +111,9 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
-	model->Draw(worldTransform, debugCamera->GetViewProjection(), textureHandle);
+	for (int i = 0; i < 100; i++) {
+		model->Draw(worldTransforms[i], viewProjection, textureHandle);
+	}
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
