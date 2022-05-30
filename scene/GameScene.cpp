@@ -28,12 +28,16 @@ void GameScene::Initialize() {
 	random_device device;
 	uniform_real_distribution<float> posDist(-20, 20);
 
-	for (int i = 0; i < 3; i++) {
-		WorldTransform t;
-		t.translation_ = { posDist(device), posDist(device), 0 };
-		t.Initialize();
-		t.UpdateMatrix();
-		worldTransforms.emplace_back(t);
+	for (int z = 0; z < 9; z++) {
+		for (int y = 0; y < 9; y++) {
+			for (int x = 0; x < 9; x++) {
+				WorldTransform t;
+				t.translation_ = { -16.0f + 4.0f * x, -16.0f + 4.0f * y, 35 + 4.0f * z };
+				t.Initialize();
+				t.UpdateMatrix();
+				worldTransforms.emplace_back(t);
+			}
+		}
 	}
 
 	viewProjection.eye = { 0, 0, -25 };
@@ -48,20 +52,34 @@ void GameScene::Initialize() {
 void GameScene::Update() {
 	debugCamera->Update();
 
-	if (input_->TriggerKey(DIK_SPACE)) {
-		targetIndex++;
-		if (targetIndex >= worldTransforms.size()) {
-			targetIndex = 0;
-		}
+	float moveSpeed = 0.2f;
 
-		larpStart = viewProjection.target;
-		larpTime = 0;
+	if (input_->PushKey(DIK_A)) {
+		viewProjection.target.x -= moveSpeed;
+	}
+	if (input_->PushKey(DIK_D)) {
+		viewProjection.target.x += moveSpeed;
+	}
+	if (input_->PushKey(DIK_W)) {
+		viewProjection.target.y += moveSpeed;
+	}
+	if (input_->PushKey(DIK_S)) {
+		viewProjection.target.y -= moveSpeed;
 	}
 
-	larpTime++;
-	float t = min(30, larpTime);
-	Vector3 larp = larpStart * (1.0f - t / 30.0f) + worldTransforms[targetIndex].translation_ * (t / 30.0f);
-	viewProjection.target = larp;
+	if (input_->PushKey(DIK_UPARROW)) {
+		viewProjection.fovAngleY -= 0.05f;
+		if (viewProjection.fovAngleY < 0.1f) {
+			viewProjection.fovAngleY = 0.1f;
+		}
+	}
+	if (input_->PushKey(DIK_DOWNARROW)) {
+		viewProjection.fovAngleY += 0.05f;
+		if (viewProjection.fovAngleY >= 3.141592653589793238462643383279f) {
+			viewProjection.fovAngleY = 3.141592653589793238462643383279f;
+		}
+	}
+
 	viewProjection.UpdateMatrix();
 
 	debugText_->Print("eye:(" + to_string(viewProjection.eye.x) + ", " + to_string(viewProjection.eye.y) + ", " + to_string(viewProjection.eye.z) + ")", 50, 50, 1);

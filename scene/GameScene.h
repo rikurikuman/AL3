@@ -57,8 +57,4 @@ class GameScene {
 	Model* model = nullptr;
 	std::vector<WorldTransform> worldTransforms;
 	ViewProjection viewProjection;
-
-	int targetIndex = 0;
-	Vector3 larpStart;
-	int larpTime = 0;
 };
