@@ -12,7 +12,8 @@ GameScene::GameScene() {}
 GameScene::~GameScene() {
 	delete debugCamera;
 	delete model;
-	delete sprite;
+	delete spriteA;
+	delete spriteB;
 }
 
 void GameScene::Initialize() {
@@ -26,7 +27,8 @@ void GameScene::Initialize() {
 	textureHandle = TextureManager::Load("mario.jpg");
 	model = Model::Create();
 
-	sprite = Sprite::Create(TextureManager::Load("reticle.png"), {WinApp::kWindowWidth / 2, WinApp::kWindowHeight / 2}, {1, 1, 1, 1}, {0.5f, 0.5f}, false, false);
+	spriteA = Sprite::Create(TextureManager::Load("reticle.png"), {WinApp::kWindowWidth / 2, WinApp::kWindowHeight / 2}, {1, 1, 1, 1}, {0.5f, 0.5f}, false, false);
+	spriteB = Sprite::Create(TextureManager::Load("scope.png"), { 0, 0 }, { 1, 1, 1, 1 }, { 0, 0 }, false, false);
 
 	random_device device;
 	uniform_real_distribution<float> posDist(-20, 20);
@@ -71,8 +73,19 @@ void GameScene::Update() {
 	}
 
 	bool check = ADS;
-	ADS = input_->PushKey(DIK_SPACE);
-	if (ADS != check) {
+	if (input_->TriggerKey(DIK_SPACE)) {
+		ADS = !ADS;
+		larpStart = viewProjection.fovAngleY;
+		larpTime = 0;
+	}
+
+	if (input_->TriggerKey(DIK_UPARROW) && scopeMultiplier == 4.0f) {
+		scopeMultiplier = 8.0f;
+		larpStart = viewProjection.fovAngleY;
+		larpTime = 0;	
+	}
+	if (input_->TriggerKey(DIK_DOWNARROW) && scopeMultiplier == 8.0f) {
+		scopeMultiplier = 4.0f;
 		larpStart = viewProjection.fovAngleY;
 		larpTime = 0;
 	}
@@ -81,7 +94,7 @@ void GameScene::Update() {
 	float t = min(30, larpTime) / 30.0f;
 
 	if (ADS) {
-		viewProjection.fovAngleY = (1.0 - t) * larpStart + t * (20 * (3.141592653589793238462643383279f / 180));
+		viewProjection.fovAngleY = (1.0 - t) * larpStart + t * (45 / scopeMultiplier * (3.141592653589793238462643383279f / 180));
 	}
 	else {
 		viewProjection.fovAngleY = (1.0 - t) * larpStart + t * (45 * (3.141592653589793238462643383279f / 180));
@@ -150,7 +163,8 @@ void GameScene::Draw() {
 	/// </summary>
 	
 	if (ADS) {
-		sprite->Draw();
+		spriteA->Draw();
+		spriteB->Draw();
 	}
 
 	// デバッグテキストの描画

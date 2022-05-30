@@ -55,11 +55,13 @@ class GameScene {
 	DebugCamera* debugCamera = nullptr;
 	uint32_t textureHandle = 0;
 	Model* model = nullptr;
-	Sprite* sprite = nullptr;
+	Sprite* spriteA = nullptr;
+	Sprite* spriteB = nullptr;
 	std::vector<WorldTransform> worldTransforms;
 	ViewProjection viewProjection;
 
 	bool ADS = false;
+	float scopeMultiplier = 4;
 	float larpStart = 0;
 	int larpTime = 0;
 };
