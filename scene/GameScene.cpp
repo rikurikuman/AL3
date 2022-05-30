@@ -26,23 +26,23 @@ void GameScene::Initialize() {
 	model = Model::Create();
 
 	random_device device;
-	uniform_real_distribution<float> rotDist(0.0f, 1.0f);
 	uniform_real_distribution<float> posDist(-20, 20);
 
-	for (int x = 0; x < 10; x++) {
-		WorldTransform t;
-		t.translation_ = { 0, 0, 35 };
-		t.Initialize();
-		worldTransforms.emplace_back(t);
+	WorldTransform t;
+	t.Initialize();
+	worldTransforms.emplace_back(t);
+
+	for (int i = 0; i < 3; i++) {
+		ViewProjection v;
+		v.eye = { posDist(device), posDist(device), posDist(device) };
+		v.Initialize();
+		viewProjections.emplace_back(v);
 	}
 
-	viewProjection.eye = { 0, 0, -10 };
-	viewProjection.Initialize();
-
 	AxisIndicator::GetInstance()->SetVisible(true);
-	AxisIndicator::GetInstance()->SetTargetViewProjection(&viewProjection);
+	AxisIndicator::GetInstance()->SetTargetViewProjection(&viewProjections[cameraIndex]);
 
-	PrimitiveDrawer::GetInstance()->SetViewProjection(&viewProjection);
+	PrimitiveDrawer::GetInstance()->SetViewProjection(&viewProjections[cameraIndex]);
 }
 
 void GameScene::Update() {
@@ -52,46 +52,23 @@ void GameScene::Update() {
 	Vector3 targetMove = Vector3();
 	const float moveSpeed = 0.2f;
 
-	if (input_->PushKey(DIK_W)) {
-		Vector3 z = (viewProjection.target - viewProjection.eye).Normalize();
-		eyeMove += z * moveSpeed;
-		targetMove += z * moveSpeed;
-	}
-	else if (input_->PushKey(DIK_S)) {
-		Vector3 z = (viewProjection.target - viewProjection.eye).Normalize();
-		eyeMove -= z * moveSpeed;
-		targetMove -= z * moveSpeed;
+	if (input_->TriggerKey(DIK_SPACE)) {
+		cameraIndex++;
+		if (cameraIndex >= viewProjections.size()) {
+			cameraIndex = 0;
+		}
 	}
 
-	if (input_->PushKey(DIK_A)) {
-		Vector3 x = viewProjection.up.Cross((viewProjection.target - viewProjection.eye));
-		x.Normalize();
-		targetMove -= x * moveSpeed;
-	}
-	else if (input_->PushKey(DIK_D)) {
-		Vector3 x = viewProjection.up.Cross((viewProjection.target - viewProjection.eye));
-		x.Normalize();
-		targetMove += x * moveSpeed;
+	for (int i = 0; i < viewProjections.size(); i++) {
+		debugText_->Print("Camera " + to_string(i+1), 50, 50 + 100 * i, 1);
+		debugText_->Print("eye:(" + to_string(viewProjections[i].eye.x) + ", " + to_string(viewProjections[i].eye.y) + ", " + to_string(viewProjections[i].eye.z) + ")", 50, 70 + 100 * i, 1);
+		debugText_->Print("target:(" + to_string(viewProjections[i].target.x) + ", " + to_string(viewProjections[i].target.y) + ", " + to_string(viewProjections[i].target.z) + ")", 50, 90 + 100 * i, 1);
+		debugText_->Print("fovAngleY:(" + to_string(viewProjections[i].fovAngleY * (180 / 3.141592653589793238462643383279f)) + ")", 50, 110 + 100 * i, 1);
 	}
 
-	rot += 2;
-	if (rot > 360) {
-		rot -= 360;
-	}
+	AxisIndicator::GetInstance()->SetTargetViewProjection(&viewProjections[cameraIndex]);
 
-	for (int i = 0; i < worldTransforms.size(); i++) {
-		worldTransforms[i].translation_.x = 10.0f * cosf((rot + 360.0f / worldTransforms.size() * i) * (3.141592653589793238462643383279f / 180));
-		worldTransforms[i].translation_.y = 10.0f * sinf((rot + 360.0f / worldTransforms.size() * i) * (3.141592653589793238462643383279f / 180));
-		worldTransforms[i].UpdateMatrix();
-	}
-
-	viewProjection.eye += eyeMove;
-	viewProjection.target += targetMove;
-	viewProjection.UpdateMatrix();
-
-	debugText_->Print("eye:(" + to_string(viewProjection.eye.x) + ", " + to_string(viewProjection.eye.y) + ", " + to_string(viewProjection.eye.z) + ")", 50, 50, 1);
-	debugText_->Print("target:(" + to_string(viewProjection.target.x) + ", " + to_string(viewProjection.target.y) + ", " + to_string(viewProjection.target.z) + ")", 50, 70, 1);
-	debugText_->Print("fovAngleY:(" + to_string(viewProjection.fovAngleY * (180 / 3.141592653589793238462643383279f)) + ")", 50, 90, 1);
+	PrimitiveDrawer::GetInstance()->SetViewProjection(&viewProjections[cameraIndex]);
 }
 
 void GameScene::Draw() {
@@ -121,7 +98,7 @@ void GameScene::Draw() {
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
 	for (WorldTransform& worldTransform : worldTransforms) {
-		model->Draw(worldTransform, viewProjection, textureHandle);
+		model->Draw(worldTransform, viewProjections[cameraIndex], textureHandle);
 	}
 
 	// 3Dオブジェクト描画後処理
