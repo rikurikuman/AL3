@@ -12,6 +12,7 @@ GameScene::GameScene() {}
 GameScene::~GameScene() {
 	delete debugCamera;
 	delete model;
+	delete sprite;
 }
 
 void GameScene::Initialize() {
@@ -24,6 +25,8 @@ void GameScene::Initialize() {
 
 	textureHandle = TextureManager::Load("mario.jpg");
 	model = Model::Create();
+
+	sprite = Sprite::Create(TextureManager::Load("reticle.png"), {WinApp::kWindowWidth / 2, WinApp::kWindowHeight / 2}, {1, 1, 1, 1}, {0.5f, 0.5f}, false, false);
 
 	random_device device;
 	uniform_real_distribution<float> posDist(-20, 20);
@@ -67,17 +70,15 @@ void GameScene::Update() {
 		viewProjection.target.y -= moveSpeed;
 	}
 
-	if (input_->PushKey(DIK_UPARROW)) {
-		viewProjection.fovAngleY -= 0.05f;
-		if (viewProjection.fovAngleY < 0.1f) {
-			viewProjection.fovAngleY = 0.1f;
-		}
+	if (input_->TriggerKey(DIK_SPACE)) {
+		ADS = !ADS;
 	}
-	if (input_->PushKey(DIK_DOWNARROW)) {
-		viewProjection.fovAngleY += 0.05f;
-		if (viewProjection.fovAngleY >= 3.141592653589793238462643383279f) {
-			viewProjection.fovAngleY = 3.141592653589793238462643383279f;
-		}
+
+	if (ADS) {
+		viewProjection.fovAngleY = 20 * (3.141592653589793238462643383279f / 180);
+	}
+	else {
+		viewProjection.fovAngleY = 45 * (3.141592653589793238462643383279f / 180);
 	}
 
 	viewProjection.UpdateMatrix();
@@ -99,7 +100,7 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに背景スプライトの描画処理を追加できる
 	/// </summary>
-
+	
 	// スプライト描画後処理
 	Sprite::PostDraw();
 	// 深度バッファクリア
@@ -141,6 +142,10 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに前景スプライトの描画処理を追加できる
 	/// </summary>
+	
+	if (ADS) {
+		sprite->Draw();
+	}
 
 	// デバッグテキストの描画
 	debugText_->DrawAll(commandList);

@@ -55,6 +55,9 @@ class GameScene {
 	DebugCamera* debugCamera = nullptr;
 	uint32_t textureHandle = 0;
 	Model* model = nullptr;
+	Sprite* sprite = nullptr;
 	std::vector<WorldTransform> worldTransforms;
 	ViewProjection viewProjection;
+
+	bool ADS = false;
 };
