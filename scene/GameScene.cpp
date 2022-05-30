@@ -32,17 +32,12 @@ void GameScene::Initialize() {
 	t.Initialize();
 	worldTransforms.emplace_back(t);
 
-	for (int i = 0; i < 3; i++) {
-		ViewProjection v;
-		v.eye = { posDist(device), posDist(device), posDist(device) };
-		v.Initialize();
-		viewProjections.emplace_back(v);
-	}
+	viewProjection.Initialize();
 
 	AxisIndicator::GetInstance()->SetVisible(true);
-	AxisIndicator::GetInstance()->SetTargetViewProjection(&viewProjections[cameraIndex]);
+	AxisIndicator::GetInstance()->SetTargetViewProjection(&viewProjection);
 
-	PrimitiveDrawer::GetInstance()->SetViewProjection(&viewProjections[cameraIndex]);
+	PrimitiveDrawer::GetInstance()->SetViewProjection(&viewProjection);
 }
 
 void GameScene::Update() {
@@ -52,23 +47,19 @@ void GameScene::Update() {
 	Vector3 targetMove = Vector3();
 	const float moveSpeed = 0.2f;
 
-	if (input_->TriggerKey(DIK_SPACE)) {
-		cameraIndex++;
-		if (cameraIndex >= viewProjections.size()) {
-			cameraIndex = 0;
-		}
-	}
+	rot += 1;
 
-	for (int i = 0; i < viewProjections.size(); i++) {
-		debugText_->Print("Camera " + to_string(i+1), 50, 50 + 100 * i, 1);
-		debugText_->Print("eye:(" + to_string(viewProjections[i].eye.x) + ", " + to_string(viewProjections[i].eye.y) + ", " + to_string(viewProjections[i].eye.z) + ")", 50, 70 + 100 * i, 1);
-		debugText_->Print("target:(" + to_string(viewProjections[i].target.x) + ", " + to_string(viewProjections[i].target.y) + ", " + to_string(viewProjections[i].target.z) + ")", 50, 90 + 100 * i, 1);
-		debugText_->Print("fovAngleY:(" + to_string(viewProjections[i].fovAngleY * (180 / 3.141592653589793238462643383279f)) + ")", 50, 110 + 100 * i, 1);
-	}
+	Vector3 v(1, 0, 0);
+	v *= Matrix4::RotationY((float)rot * (3.141592653589793238462643383279f / 180));
+	v.Normalize();
+	v *= 5;
 
-	AxisIndicator::GetInstance()->SetTargetViewProjection(&viewProjections[cameraIndex]);
+	viewProjection.eye = { v.x, v.y, v.z };
+	viewProjection.UpdateMatrix();
 
-	PrimitiveDrawer::GetInstance()->SetViewProjection(&viewProjections[cameraIndex]);
+	debugText_->Print("eye:(" + to_string(viewProjection.eye.x) + ", " + to_string(viewProjection.eye.y) + ", " + to_string(viewProjection.eye.z) + ")", 50, 50, 1);
+	debugText_->Print("target:(" + to_string(viewProjection.target.x) + ", " + to_string(viewProjection.target.y) + ", " + to_string(viewProjection.target.z) + ")", 50, 70, 1);
+	debugText_->Print("fovAngleY:(" + to_string(viewProjection.fovAngleY * (180 / 3.141592653589793238462643383279f)) + ")", 50, 90, 1);
 }
 
 void GameScene::Draw() {
@@ -98,7 +89,7 @@ void GameScene::Draw() {
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
 	for (WorldTransform& worldTransform : worldTransforms) {
-		model->Draw(worldTransform, viewProjections[cameraIndex], textureHandle);
+		model->Draw(worldTransform, viewProjection, textureHandle);
 	}
 
 	// 3Dオブジェクト描画後処理

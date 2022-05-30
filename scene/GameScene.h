@@ -56,6 +56,7 @@ class GameScene {
 	uint32_t textureHandle = 0;
 	Model* model = nullptr;
 	std::vector<WorldTransform> worldTransforms;
-	std::vector<ViewProjection> viewProjections;
-	int cameraIndex = 0;
+	ViewProjection viewProjection;
+
+	int rot = 0;
 };
