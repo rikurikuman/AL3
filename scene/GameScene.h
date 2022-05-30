@@ -57,4 +57,6 @@ class GameScene {
 	Model* model = nullptr;
 	std::vector<WorldTransform> worldTransforms;
 	ViewProjection viewProjection;
+
+	int rot = 0;
 };

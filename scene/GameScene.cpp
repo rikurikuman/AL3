@@ -29,15 +29,11 @@ void GameScene::Initialize() {
 	uniform_real_distribution<float> rotDist(0.0f, 1.0f);
 	uniform_real_distribution<float> posDist(-20, 20);
 
-	for (int z = 0; z < 9; z++) {
-		for (int y = 0; y < 9; y++) {
-			for (int x = 0; x < 9; x++) {
-				WorldTransform t;
-				t.translation_ = { -16.0f + 4.0f * x, -16.0f + 4.0f * y, 35 + 4.0f * z };
-				t.Initialize();
-				worldTransforms.emplace_back(t);
-			}
-		}
+	for (int x = 0; x < 10; x++) {
+		WorldTransform t;
+		t.translation_ = { 0, 0, 35 };
+		t.Initialize();
+		worldTransforms.emplace_back(t);
 	}
 
 	viewProjection.eye = { 0, 0, -10 };
@@ -78,8 +74,15 @@ void GameScene::Update() {
 		targetMove += x * moveSpeed;
 	}
 
-	for (WorldTransform& worldTransform : worldTransforms) {
-		worldTransform.UpdateMatrix();
+	rot += 2;
+	if (rot > 360) {
+		rot -= 360;
+	}
+
+	for (int i = 0; i < worldTransforms.size(); i++) {
+		worldTransforms[i].translation_.x = 10.0f * cosf((rot + 360.0f / worldTransforms.size() * i) * (3.141592653589793238462643383279f / 180));
+		worldTransforms[i].translation_.y = 10.0f * sinf((rot + 360.0f / worldTransforms.size() * i) * (3.141592653589793238462643383279f / 180));
+		worldTransforms[i].UpdateMatrix();
 	}
 
 	viewProjection.eye += eyeMove;
