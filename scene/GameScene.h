@@ -10,6 +10,7 @@
 #include "ViewProjection.h"
 #include "WorldTransform.h"
 #include "DebugCamera.h"
+#include <vector>
 
 /// <summary>
 /// ゲームシーン
@@ -42,20 +43,6 @@ class GameScene {
 	/// </summary>
 	void Draw();
 
-	enum PartId {
-		kRoot,
-		kSpine,
-		kChest,
-		kHead,
-		kArmL,
-		kArmR,
-		kHip,
-		kLegL,
-		kLegR,
-
-		kNumPartId
-	};
-
   private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
@@ -68,6 +55,6 @@ class GameScene {
 	DebugCamera* debugCamera = nullptr;
 	uint32_t textureHandle = 0;
 	Model* model = nullptr;
-	WorldTransform worldTransforms[kNumPartId];
+	std::vector<WorldTransform> worldTransforms;
 	ViewProjection viewProjection;
 };
