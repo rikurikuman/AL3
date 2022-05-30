@@ -58,5 +58,5 @@ class GameScene {
 	std::vector<WorldTransform> worldTransforms;
 	ViewProjection viewProjection;
 
-	int rot = 0;
+	int targetIndex = 0;
 };

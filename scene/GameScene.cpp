@@ -28,10 +28,15 @@ void GameScene::Initialize() {
 	random_device device;
 	uniform_real_distribution<float> posDist(-20, 20);
 
-	WorldTransform t;
-	t.Initialize();
-	worldTransforms.emplace_back(t);
+	for (int i = 0; i < 3; i++) {
+		WorldTransform t;
+		t.translation_ = { posDist(device), posDist(device), 0 };
+		t.Initialize();
+		t.UpdateMatrix();
+		worldTransforms.emplace_back(t);
+	}
 
+	viewProjection.eye = { 0, 0, -25 };
 	viewProjection.Initialize();
 
 	AxisIndicator::GetInstance()->SetVisible(true);
@@ -43,18 +48,14 @@ void GameScene::Initialize() {
 void GameScene::Update() {
 	debugCamera->Update();
 
-	Vector3 eyeMove = Vector3();
-	Vector3 targetMove = Vector3();
-	const float moveSpeed = 0.2f;
+	if (input_->TriggerKey(DIK_SPACE)) {
+		targetIndex++;
+		if (targetIndex >= worldTransforms.size()) {
+			targetIndex = 0;
+		}
+	}
 
-	rot += 1;
-
-	Vector3 v(1, 0, 0);
-	v *= Matrix4::RotationY((float)rot * (3.141592653589793238462643383279f / 180));
-	v.Normalize();
-	v *= 5;
-
-	viewProjection.eye = { v.x, v.y, v.z };
+	viewProjection.target = worldTransforms[targetIndex].translation_;
 	viewProjection.UpdateMatrix();
 
 	debugText_->Print("eye:(" + to_string(viewProjection.eye.x) + ", " + to_string(viewProjection.eye.y) + ", " + to_string(viewProjection.eye.z) + ")", 50, 50, 1);
