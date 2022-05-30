@@ -53,9 +53,15 @@ void GameScene::Update() {
 		if (targetIndex >= worldTransforms.size()) {
 			targetIndex = 0;
 		}
+
+		larpStart = viewProjection.target;
+		larpTime = 0;
 	}
 
-	viewProjection.target = worldTransforms[targetIndex].translation_;
+	larpTime++;
+	float t = min(30, larpTime);
+	Vector3 larp = larpStart * (1.0f - t / 30.0f) + worldTransforms[targetIndex].translation_ * (t / 30.0f);
+	viewProjection.target = larp;
 	viewProjection.UpdateMatrix();
 
 	debugText_->Print("eye:(" + to_string(viewProjection.eye.x) + ", " + to_string(viewProjection.eye.y) + ", " + to_string(viewProjection.eye.z) + ")", 50, 50, 1);

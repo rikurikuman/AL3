@@ -59,4 +59,6 @@ class GameScene {
 	ViewProjection viewProjection;
 
 	int targetIndex = 0;
+	Vector3 larpStart;
+	int larpTime = 0;
 };
