@@ -29,11 +29,11 @@ void GameScene::Initialize() {
 	uniform_real_distribution<float> rotDist(0.0f, 1.0f);
 	uniform_real_distribution<float> posDist(-20, 20);
 
-	for (int y = 0; y < 9; y++) {
-		for (int x = 0; x < 9; x++) {
-			if (x % 2 == 0 || y % 2 == 0) {
+	for (int z = 0; z < 9; z++) {
+		for (int y = 0; y < 9; y++) {
+			for (int x = 0; x < 9; x++) {
 				WorldTransform t;
-				t.translation_ = { -16.0f + 4.0f * x, -16.0f + 4.0f * y, 35 };
+				t.translation_ = { -16.0f + 4.0f * x, -16.0f + 4.0f * y, 35 + 4.0f * z };
 				t.Initialize();
 				worldTransforms.emplace_back(t);
 			}
