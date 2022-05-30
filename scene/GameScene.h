@@ -60,4 +60,6 @@ class GameScene {
 	ViewProjection viewProjection;
 
 	bool ADS = false;
+	float larpStart = 0;
+	int larpTime = 0;
 };

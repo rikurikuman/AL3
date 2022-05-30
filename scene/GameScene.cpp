@@ -70,15 +70,21 @@ void GameScene::Update() {
 		viewProjection.target.y -= moveSpeed;
 	}
 
-	if (input_->TriggerKey(DIK_SPACE)) {
-		ADS = !ADS;
+	bool check = ADS;
+	ADS = input_->PushKey(DIK_SPACE);
+	if (ADS != check) {
+		larpStart = viewProjection.fovAngleY;
+		larpTime = 0;
 	}
 
+	larpTime++;
+	float t = min(30, larpTime) / 30.0f;
+
 	if (ADS) {
-		viewProjection.fovAngleY = 20 * (3.141592653589793238462643383279f / 180);
+		viewProjection.fovAngleY = (1.0 - t) * larpStart + t * (20 * (3.141592653589793238462643383279f / 180));
 	}
 	else {
-		viewProjection.fovAngleY = 45 * (3.141592653589793238462643383279f / 180);
+		viewProjection.fovAngleY = (1.0 - t) * larpStart + t * (45 * (3.141592653589793238462643383279f / 180));
 	}
 
 	viewProjection.UpdateMatrix();
